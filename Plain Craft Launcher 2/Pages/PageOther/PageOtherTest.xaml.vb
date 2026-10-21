@@ -438,19 +438,75 @@ Public Class PageOtherTest
 
     Private Sub BtnClick_Click(sender As Object, e As EventArgs) Handles BtnClick.Click
         ThemeDontClick = 2
-        If MyMsgBox("即将播放一段音频，请确认你已调低音量，并做好心理准备。" & vbCrLf & vbCrLf & "是否继续？",
-                    "警告", "继续", "取消", "", IsWarn:=True) = 2 Then
-            ThemeDontClick = 1
-            Return
+        Dim Effects As New List(Of Integer) From {RandomInteger(0, 7)}
+        If RandomInteger(0, 1) = 1 Then Effects.Add(RandomInteger(1, 6))
+        If DateTime.Now.Month = 4 AndAlso DateTime.Now.Day = 1 Then Effects = New List(Of Integer) From {7}
+        If Effects.Contains(1) Then
+            If MyMsgBox("当暴露在点击确定后的场景时，有极小部分人群会引发癫痫。这种情形可能是由于某些未查出的癫痫症状引起，即使该人员并没有患癫痫病史也有可能造成此类病症。如果您的家人或任何家庭成员曾有过类似症状，请在点击确定前咨询您的医生或医师。如果您在稍后出现任何症状，包括头晕、目眩、眼部或肌肉抽搐、失去意识、失去方向感、抽搐或出现任何自己无法控制的动作，请立即关闭 PCL 并咨询您的医生或医师。" & vbCrLf &
+                        "这是最后的警告，是否继续操作？", "警告", "确定", "取消", "", IsWarn:=True) = 2 Then Return
+        Else
+            MyMsgBox("PCL 作者不会受理由于点击千万别点造成的任何 Bug。" & vbCrLf & "这是最后的警告，是否继续操作？",
+                     "警告", "确定", "确定", "确定", IsWarn:=True)
         End If
-        If MyMsgBox("PCL 作者不对点击「千万别点」造成的任何后果负责。" & vbCrLf & vbCrLf & "确定要继续吗？",
-                    "最后一次确认", "确定", "确定", "确定", IsWarn:=True) = 2 Then
-            ThemeDontClick = 1
-            Return
-        End If
-        ThemeDontClick = 1
-        OpenWebsite("https://www.bilibili.com/video/BV1GJ411x7h7")
         ThemeRefresh()
+        For Each EffectId In Effects
+            Select Case EffectId
+                Case 0
+                    ThemeDontClick = 1
+                    ThemeRefresh()
+                Case 1
+                    ThemeDontClick = 2
+                    ThemeRefresh()
+                Case 2
+                    If FrmMain.PanBack.LayoutTransform IsNot Nothing Then FrmMain.PanBack.RenderTransformOrigin = New Point(1.25, 1.25)
+                    Select Case RandomInteger(0, 2)
+                        Case 0 : FrmMain.PanBack.RenderTransform = New ScaleTransform(1, -1)
+                        Case 1 : FrmMain.PanBack.RenderTransform = New ScaleTransform(-1, -1)
+                        Case 2 : FrmMain.PanBack.RenderTransform = New ScaleTransform(-1, 1)
+                    End Select
+                Case 3
+                    FrmMain.IsSizeSaveable = False
+                    FrmMain.PanBack.LayoutTransform = New ScaleTransform(2.5, 2.5)
+                    FrmMain.Height = My.Computer.Screen.WorkingArea.Height - 200
+                    FrmMain.Width = My.Computer.Screen.WorkingArea.Width - 200
+                    FrmMain.Left = 0
+                    FrmMain.Top = 0
+                    AniStop("Don't Click Scale")
+                Case 4
+                    FrmMain.IsSizeSaveable = False
+                    FrmMain.RenderTransform = New ScaleTransform()
+                    AniStart(AaScaleTransform(FrmMain, -0.85, 5000, 0, New AniEaseOutFluent(AniEasePower.ExtraStrong)), "Don't Click Scale")
+                    AniStop("Don't Click Rotate")
+                Case 5
+                    FrmMain.RenderTransform = New RotateTransform()
+                    AniStart(AaRotateTransform(FrmMain, 1000000 * RandomOne(New Integer() {1, -1}), 10000000), "Don't Click Rotate")
+                    AniStop("Don't Click Scale")
+                Case 6
+                    FrmMain.IsSizeSaveable = False
+                    If RandomInteger(0, 1) <> 0 Then
+                        AniStart(AaX(FrmMain, 10000000 * RandomOne(New Integer() {1, -1}), 30000000), "Don't Click Move X")
+                    Else
+                        AniStart(AaY(FrmMain, 10000000 * RandomOne(New Integer() {1, -1}), 50000000), "Don't Click Move Y")
+                    End If
+                    RunInThread(
+                        Sub()
+                            Do While True
+                                RunInUi(
+                                    Sub()
+                                        Dim ScreenBounds = My.Computer.Screen.Bounds
+                                        If FrmMain.Top < -FrmMain.Height Then FrmMain.Top = ScreenBounds.Height + 49
+                                        If FrmMain.Top > ScreenBounds.Height + 50 Then FrmMain.Top = -FrmMain.Height + 1
+                                        If FrmMain.Left < -FrmMain.Width Then FrmMain.Left = ScreenBounds.Width + 49
+                                        If FrmMain.Left > ScreenBounds.Width + 50 Then FrmMain.Left = -FrmMain.Width + 1
+                                    End Sub)
+                                Thread.Sleep(10)
+                            Loop
+                        End Sub)
+                Case 7
+                    OpenWebsite("https://www.bilibili.com/video/BV1GJ411x7h7")
+            End Select
+        Next
+        BtnClick.Visibility = Visibility.Collapsed
     End Sub
 
 #End Region

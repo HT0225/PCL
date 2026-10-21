@@ -70,6 +70,16 @@ Friend Module ModSecret
             If ThemeNow = NewTheme AndAlso NewTheme >= 0 Then Return
             If NewTheme >= 0 Then ThemeNow = NewTheme
 
+            '千万别点彩蛋的特殊配色
+            Select Case ThemeDontClick
+                Case 1
+                    ColorLightAdjust = 999
+                Case 2
+                    ColorHue = RandomInteger(0, 359)
+                    ColorSat = RandomInteger(40, 70)
+                    ColorLightAdjust = RandomInteger(-20, 20)
+            End Select
+
             Color1 = New MyColor().FromHSL2(ColorHue, ColorSat * 0.2, 25 + ColorLightAdjust * 0.3)
             Color2 = New MyColor().FromHSL2(ColorHue, ColorSat, 45 + ColorLightAdjust)
             Color3 = New MyColor().FromHSL2(ColorHue, ColorSat, 55 + ColorLightAdjust)
