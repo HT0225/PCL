@@ -109,7 +109,13 @@ Public Class PageLaunchLeft
 
         '改变页面
         Dim LoginType = Settings.Get(Of McLoginType)("LoginType")
-        If LoginType = McLoginType.Legacy OrElse LoginType = McLoginType.Ms Then CType(FindName("RadioLoginType" & LoginType), MyRadioButton).Checked = True
+        '当前构建已移除微软登录，统一回落到离线登录
+        If LoginType = McLoginType.Ms Then
+            LoginType = McLoginType.Legacy
+            Settings.Set("LoginType", McLoginType.Legacy)
+        End If
+        RadioLoginType5.Visibility = Visibility.Collapsed
+        If LoginType = McLoginType.Legacy Then CType(FindName("RadioLoginType" & LoginType), MyRadioButton).Checked = True
         RefreshPage(False, False)
 
         AniControlEnabled -= 1
@@ -300,36 +306,23 @@ Public Class PageLaunchLeft
             LoginPageType = Settings.Get(Of Integer)("LoginPageType")
         End If
         Select Case LoginPageType
-            Case 0 '正版或离线
+            Case 0 '正版或离线（已移除微软登录，固定为离线）
 UnknownType:
-                If RadioLoginType5.Checked Then
-                    If Settings.Get(Of String)("CacheMsV2Access") = "" Then
-                        Type = PageType.Ms
-                    Else
-                        Type = PageType.MsSkin
-                    End If
-                    Settings.Set("LoginType", McLoginType.Ms)
-                Else
-                    Type = PageType.Legacy
-                    Settings.Set("LoginType", McLoginType.Legacy)
-                End If
+                Type = PageType.Legacy
+                Settings.Set("LoginType", McLoginType.Legacy)
                 PanType.Visibility = Visibility.Visible
                 PanTypeOne.Visibility = Visibility.Collapsed
-                RadioLoginType5.Visibility = Visibility.Visible
+                RadioLoginType5.Visibility = Visibility.Collapsed
                 RadioLoginType0.Visibility = Visibility.Visible
-            Case 1 '仅正版
-                If Settings.Get(Of String)("CacheMsV2Access") = "" Then
-                    Type = PageType.Ms
-                Else
-                    Type = PageType.MsSkin
-                End If
-                Settings.Set("LoginType", McLoginType.Ms)
+            Case 1 '仅正版（已移除微软登录，回落到离线登录）
+                Type = PageType.Legacy
+                Settings.Set("LoginType", McLoginType.Legacy)
                 PanType.Visibility = Visibility.Collapsed
                 PanTypeOne.Visibility = Visibility.Visible
-                PathTypeOne.Data = (New GeometryConverter).ConvertFromString(Logo.IconButtonShield)
-                LabTypeOne.Text = "正版登录"
-                RadioLoginType5.Visibility = Visibility.Visible
-                RadioLoginType0.Visibility = Visibility.Collapsed
+                PathTypeOne.Data = (New GeometryConverter).ConvertFromString(Logo.IconButtonOffline)
+                LabTypeOne.Text = "离线登录"
+                RadioLoginType5.Visibility = Visibility.Collapsed
+                RadioLoginType0.Visibility = Visibility.Visible
             Case 2 '仅离线
                 Type = PageType.Legacy
                 Settings.Set("LoginType", McLoginType.Legacy)
