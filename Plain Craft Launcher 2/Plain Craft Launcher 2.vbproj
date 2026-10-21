@@ -338,6 +338,7 @@
     <Compile Include="Pages\PageOther\PageOtherTest.xaml.vb">
       <DependentUpon>PageOtherTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\PageOther\PageOtherTest.CaveData.vb" />
     <Compile Include="Pages\PageLaunch\MySkin.xaml.vb">
       <DependentUpon>MySkin.xaml</DependentUpon>
     </Compile>
